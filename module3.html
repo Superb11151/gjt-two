@@ -7,29 +7,34 @@
     <title>储油一区问答系统</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 80px 20px 20px; /* 增加顶部内边距，将模块下移 */
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 2fr;
             gap: 20px;
             position: relative;
+            background-color: #f4f4f9;
         }
 
         .left-section {
             position: sticky;
             top: 20px;
-            border: 1px solid #ccc;
+            border: none;
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 10px;
             height: fit-content;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .right-section {
-            border: 1px solid #ccc;
+            border: none;
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 10px;
             max-height: calc(100vh - 40px);
             overflow-y: auto;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         form {
@@ -40,29 +45,50 @@
             width: 100%;
             height: 100px;
             margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         button {
-            padding: 5px 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
         }
 
         .message {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 10px;
+            border: none;
+            padding: 20px;
+            margin-bottom: 20px;
             position: relative;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .message .question-and-button {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-direction: row-reverse; /* 修改此处，让按钮模块在右边 */
             word-break: break-all;
         }
 
         .message .question-text {
             flex: 1;
             margin-right: 10px;
+            font-size: 18px;
+            word-wrap: break-word; /* 新增样式，支持换行 */
+            white-space: normal; /* 新增样式，支持换行 */
         }
 
         .message .button-container {
@@ -79,187 +105,351 @@
             width: 100%;
             height: 80px;
             margin-bottom: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         .reply {
-            border: 1px solid #eee;
-            padding: 8px;
-            margin-top: 5px;
-            background-color: #f9f9f9;
+            border: none;
+            padding: 15px;
+            margin-top: 15px;
+            background-color: #e9ecef;
             word-break: break-all;
             position: relative;
+            border-radius: 5px;
+            word-wrap: break-word; /* 新增样式，支持换行 */
+            white-space: normal; /* 新增样式，支持换行 */
+            display: flex;
+            flex-direction: column;
         }
 
+        /* 修改删除按钮样式 */
         .delete-reply {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
+            margin-top: 10px;
+            background-color: #dc3545;
+            align-self: flex-end; /* 将删除按钮靠右 */
+        }
+
+        .delete-reply:hover {
+            background-color: #c82333;
         }
 
         .message button {
-            margin-left: 2px;
+            margin-left: 10px;
         }
 
         .back-home {
             position: fixed;
             bottom: 20px;
             left: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-home:hover {
+            background-color: #5a6268;
+        }
+
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-info button:hover {
+            background-color: #0056b3;
+        }
+
+        h1,
+        h2 {
+            color: #343a40;
+        }
+
+        /* 新增样式，让标题居中 */
+       .right-section h2 {
+            text-align: center;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            margin: 0 5px;
         }
     </style>
 </head>
 
 <body>
+    <div id="user-info" class="user-info"></div>
     <div class="left-section">
-        <h1>安全问题提交系统</h1>
+        <h1>安全问题提交区</h1>
         <form id="messageForm">
             <textarea id="messageInput" placeholder="问题"></textarea>
             <button type="submit">提交</button>
         </form>
     </div>
     <div class="right-section">
-        <h2>已提交的问题</h2>
+        <h2>问答区</h2>
         <div id="messageList"></div>
+        <div class="pagination" id="pagination"></div>
     </div>
 
     <a href="index.html" class="back-home">回到首页</a>
 
     <script>
-        const messageForm = document.getElementById('messageForm');
-        const messageInput = document.getElementById('messageInput');
-        const messageList = document.getElementById('messageList');
-        const namespace = 'module3_';
+const messageForm = document.getElementById('messageForm');
+const messageInput = document.getElementById('messageInput');
+const messageList = document.getElementById('messageList');
+const pagination = document.getElementById('pagination');
+const namespace = 'module3';
+let currentPage = 1;
+const itemsPerPage = 5;
 
-        // 从 localStorage 加载数据
-        const storedMessages = JSON.parse(localStorage.getItem(namespace + 'messages')) || [];
-        storedMessages.forEach((messageData) => {
-            const messageElement = createMessageElement(messageData.question, messageData.replies);
-            messageList.appendChild(messageElement);
-        });
+// 提取加载本地存储数据的逻辑
+function loadMessagesFromStorage() {
+    const storedMessages = JSON.parse(localStorage.getItem(namespace + 'messages')) || [];
+    console.log('Loaded messages from storage:', storedMessages);
+    displayMessages(storedMessages);
+}
 
-        messageForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const message = messageInput.value;
-            if (message) {
-                const messageElement = createMessageElement(message, []);
-                messageList.appendChild(messageElement);
-                messageInput.value = '';
+window.onload = function () {
+    updateUserInfo();
+    // 仅在页面加载时加载数据
+    loadMessagesFromStorage();
+};
 
-                // 更新 localStorage
-                const messages = getMessagesFromDOM();
-                localStorage.setItem(namespace + 'messages', JSON.stringify(messages));
-            }
-        });
+messageForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const message = messageInput.value;
+    const currentUser = sessionStorage.getItem('currentUser');
+    if (message && currentUser) {
+        const messages = getMessagesFromStorage(); // 从本地存储获取最新消息
+        messages.push({ question: message, replies: [], username: currentUser });
+        localStorage.setItem(namespace + 'messages', JSON.stringify(messages));
+        messageInput.value = '';
+        console.log('New messages after submission:', messages);
+        displayMessages(messages); // 重新显示消息
+    }
+});
 
-        function createMessageElement(question, replies) {
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message');
+function createMessageElement(question, replies, username) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
 
-            const questionAndButton = document.createElement('div');
-            questionAndButton.classList.add('question-and-button');
+    const questionHeader = document.createElement('div');
+    questionHeader.textContent = `${username}: `;
+    const questionText = document.createElement('span');
+    questionText.classList.add('question-text');
+    questionText.textContent = question;
+    questionHeader.appendChild(questionText);
+    messageElement.appendChild(questionHeader);
 
-            const questionText = document.createElement('div');
-            questionText.classList.add('question-text');
-            questionText.textContent = question;
-            questionAndButton.appendChild(questionText);
+    const questionAndButton = document.createElement('div');
+    questionAndButton.classList.add('question-and-button');
 
-            const buttonContainer = document.createElement('div');
-            buttonContainer.classList.add('button-container');
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add('button-container');
 
-            const commentButton = document.createElement('button');
-            commentButton.textContent = '评论';
-            commentButton.addEventListener('click', function () {
-                const replyForm = messageElement.querySelector('.reply-form');
-                replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
-            });
-            buttonContainer.appendChild(commentButton);
+    const commentButton = document.createElement('button');
+    commentButton.textContent = '评论';
+    commentButton.addEventListener('click', function () {
+        const replyForm = messageElement.querySelector('.reply-form');
+        replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+    });
+    buttonContainer.appendChild(commentButton);
 
-            const deleteQuestionButton = document.createElement('button');
-            deleteQuestionButton.textContent = '删除问题';
-            deleteQuestionButton.addEventListener('click', function () {
+    const currentUser = sessionStorage.getItem('currentUser');
+    if (currentUser === username) {
+        const deleteQuestionButton = document.createElement('button');
+        deleteQuestionButton.textContent = '删除问题';
+        deleteQuestionButton.addEventListener('click', function () {
+            if (confirm('确定要删除这个问题吗？')) {
                 messageElement.remove();
                 // 更新 localStorage
                 const messages = getMessagesFromDOM();
                 localStorage.setItem(namespace + 'messages', JSON.stringify(messages));
-            });
-            buttonContainer.appendChild(deleteQuestionButton);
+                console.log('Messages after question deletion:', messages);
+                displayMessages(messages);
+            }
+        });
+        buttonContainer.appendChild(deleteQuestionButton);
+    }
 
-            questionAndButton.appendChild(buttonContainer);
-            messageElement.appendChild(questionAndButton);
+    questionAndButton.appendChild(buttonContainer);
+    messageElement.appendChild(questionAndButton);
 
-            const replyForm = document.createElement('form');
-            replyForm.classList.add('reply-form');
-            const replyTextarea = document.createElement('textarea');
-            replyTextarea.classList.add('reply-textarea');
-            replyTextarea.placeholder = '输入回复内容';
-            replyForm.appendChild(replyTextarea);
+    const replyForm = document.createElement('form');
+    replyForm.classList.add('reply-form');
+    const replyTextarea = document.createElement('textarea');
+    replyTextarea.classList.add('reply-textarea');
+    replyTextarea.placeholder = '输入回复内容';
+    replyForm.appendChild(replyTextarea);
 
-            const replySubmitButton = document.createElement('button');
-            replySubmitButton.type = 'submit';
-            replySubmitButton.textContent = '提交回复';
-            replyForm.appendChild(replySubmitButton);
+    const replySubmitButton = document.createElement('button');
+    replySubmitButton.type = 'submit';
+    replySubmitButton.textContent = '提交回复';
+    replyForm.appendChild(replySubmitButton);
 
-            replyForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const reply = replyTextarea.value;
-                if (reply) {
-                    const replyElement = createReplyElement(reply);
-                    messageElement.appendChild(replyElement);
-                    replyTextarea.value = '';
-                    replyForm.style.display = 'none';
+    replyForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const reply = replyTextarea.value;
+        const currentUser = sessionStorage.getItem('currentUser');
+        if (reply && currentUser) {
+            const replyElement = createReplyElement(reply, currentUser);
+            messageElement.appendChild(replyElement);
+            replyTextarea.value = '';
+            replyForm.style.display = 'none';
 
-                    // 更新 localStorage
-                    const messages = getMessagesFromDOM();
-                    localStorage.setItem(namespace + 'messages', JSON.stringify(messages));
-                }
-            });
-
-            messageElement.appendChild(replyForm);
-
-            // 添加已有的回复
-            replies.forEach((reply) => {
-                const replyElement = createReplyElement(reply);
-                messageElement.appendChild(replyElement);
-            });
-
-            return messageElement;
+            // 更新 localStorage
+            const messages = getMessagesFromDOM();
+            localStorage.setItem(namespace + 'messages', JSON.stringify(messages));
+            console.log('Messages after reply submission:', messages);
         }
+    });
 
-        function createReplyElement(reply) {
-            const replyElement = document.createElement('div');
-            replyElement.classList.add('reply');
-            replyElement.textContent = reply;
+    messageElement.appendChild(replyForm);
 
-            const deleteButton = document.createElement('button');
-            deleteButton.classList.add('delete-reply');
-            deleteButton.textContent = '删除';
-            deleteButton.addEventListener('click', function () {
+    // 添加已有的回复
+    replies.forEach((replyData) => {
+        const replyElement = createReplyElement(replyData.reply, replyData.username);
+        messageElement.appendChild(replyElement);
+    });
+
+    return messageElement;
+}
+
+function createReplyElement(reply, username) {
+    const replyElement = document.createElement('div');
+    replyElement.classList.add('reply');
+
+    const replyHeader = document.createElement('div');
+    replyHeader.textContent = `${username}: `;
+    const replyText = document.createElement('span');
+    replyText.textContent = reply;
+    replyHeader.appendChild(replyText);
+    replyElement.appendChild(replyHeader);
+
+    const currentUser = sessionStorage.getItem('currentUser');
+    if (currentUser === username) {
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete-reply');
+        deleteButton.textContent = '删除';
+        deleteButton.addEventListener('click', function () {
+            if (confirm('确定要删除这个回复吗？')) {
                 replyElement.remove();
                 // 更新 localStorage
                 const messages = getMessagesFromDOM();
                 localStorage.setItem(namespace + 'messages', JSON.stringify(messages));
-            });
-            replyElement.appendChild(deleteButton);
+                console.log('Messages after reply deletion:', messages);
+            }
+        });
+        replyElement.appendChild(deleteButton);
+    }
 
-            return replyElement;
-        }
+    return replyElement;
+}
 
-        function getMessagesFromDOM() {
-            const messages = [];
-            const messageElements = messageList.querySelectorAll('.message');
-            messageElements.forEach((messageElement) => {
-                const question = messageElement.querySelector('.question-text').textContent.trim();
-                const replyElements = messageElement.querySelectorAll('.reply');
-                const replies = [];
-                replyElements.forEach((replyElement) => {
-                    const replyText = replyElement.textContent.replace('删除', '').trim();
-                    if (replyText) {
-                        replies.push(replyText);
-                    }
-                });
-                messages.push({ question, replies });
-            });
-            return messages;
+function getMessagesFromDOM() {
+    const messages = [];
+    const messageElements = messageList.querySelectorAll('.message');
+    messageElements.forEach((messageElement) => {
+        const question = messageElement.querySelector('.question-text').textContent.trim();
+        const username = messageElement.firstChild.textContent.split(':')[0].trim();
+        const replyElements = messageElement.querySelectorAll('.reply');
+        const replies = [];
+        replyElements.forEach((replyElement) => {
+            const replyText = replyElement.querySelector('span').textContent.trim();
+            const replyUsername = replyElement.firstChild.textContent.split(':')[0].trim();
+            replies.push({ reply: replyText, username: replyUsername });
+        });
+        messages.push({ question, replies, username });
+    });
+    console.log('Messages retrieved from DOM:', messages);
+    return messages;
+}
+
+function getMessagesFromStorage() {
+    return JSON.parse(localStorage.getItem(namespace + 'messages')) || [];
+}
+
+function updateUserInfo() {
+    const userInfo = document.getElementById('user-info');
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+    if (isLoggedIn === 'true') {
+        const currentUser = sessionStorage.getItem('currentUser');
+        userInfo.innerHTML = `<span>${currentUser}</span><button onclick="logout()">退出登录</button>`;
+    } else {
+        userInfo.innerHTML = '';
+    }
+}
+
+function logout() {
+    sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('currentUser');
+    window.location.href = 'index.html';
+}
+
+function displayMessages(messages) {
+    console.log('Displaying messages. Total messages:', messages.length);
+    console.log('Current page:', currentPage);
+    messageList.innerHTML = '';
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    console.log('Start index:', startIndex);
+    console.log('End index:', endIndex);
+    const currentMessages = messages.slice(startIndex, endIndex);
+    currentMessages.forEach((messageData) => {
+        const messageElement = createMessageElement(messageData.question, messageData.replies, messageData.username);
+        messageList.appendChild(messageElement);
+    });
+    setupPagination(messages);
+}
+
+function setupPagination(messages) {
+    console.log('Setting up pagination for', messages.length, 'messages');
+    pagination.innerHTML = '';
+    const totalPages = Math.ceil(messages.length / itemsPerPage);
+    console.log('Total pages:', totalPages);
+    for (let i = 1; i <= totalPages; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.textContent = i;
+        if (i === currentPage) {
+            pageButton.disabled = true;
         }
+        pageButton.addEventListener('click', function () {
+            currentPage = i;
+            displayMessages(getMessagesFromStorage()); // 从本地存储获取最新消息
+        });
+        pagination.appendChild(pageButton);
+    }
+}
+    </script>
+</body>
+
+</html> 
     </script>
 </body>
 
