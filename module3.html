@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>储油一区问答系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            position: relative;
+        }
+
+        .left-section {
+            position: sticky;
+            top: 20px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            height: fit-content;
+        }
+
+        .right-section {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 5px 10px;
+        }
+
+        .message {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .message .question-and-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            word-break: break-all;
+        }
+
+        .message .question-text {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .message .button-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .reply-form {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .reply-textarea {
+            width: 100%;
+            height: 80px;
+            margin-bottom: 5px;
+        }
+
+        .reply {
+            border: 1px solid #eee;
+            padding: 8px;
+            margin-top: 5px;
+            background-color: #f9f9f9;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .delete-reply {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+        }
+
+        .message button {
+            margin-left: 2px;
+        }
+
+        .back-home {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="left-section">
+        <h1>安全问题提交系统</h1>
+        <form id="messageForm">
+            <textarea id="messageInput" placeholder="问题"></textarea>
+            <button type="submit">提交</button>
+        </form>
+    </div>
+    <div class="right-section">
+        <h2>已提交的问题</h2>
+        <div id="messageList"></div>
+    </div>
+
+    <a href="index.html" class="back-home">回到首页</a>
+
+    <script>
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('messageInput');
+        const messageList = document.getElementById('messageList');
+
+        // 从 localStorage 加载数据
+        const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
+        storedMessages.forEach((messageData) => {
+            const messageElement = createMessageElement(messageData.question, messageData.replies);
+            messageList.appendChild(messageElement);
+        });
+
+        messageForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const message = messageInput.value;
+            if (message) {
+                const messageElement = createMessageElement(message, []);
+                messageList.appendChild(messageElement);
+                messageInput.value = '';
+
+                // 更新 localStorage
+                const messages = getMessagesFromDOM();
+                localStorage.setItem('messages', JSON.stringify(messages));
+            }
+        });
+
+        function createMessageElement(question, replies) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+
+            const questionAndButton = document.createElement('div');
+            questionAndButton.classList.add('question-and-button');
+
+            const questionText = document.createElement('div');
+            questionText.classList.add('question-text');
+            questionText.textContent = question;
+            questionAndButton.appendChild(questionText);
+
+            const buttonContainer = document.createElement('div');
+            buttonContainer.classList.add('button-container');
+
+            const commentButton = document.createElement('button');
+            commentButton.textContent = '评论';
+            commentButton.addEventListener('click', function () {
+                const replyForm = messageElement.querySelector('.reply-form');
+                replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+            });
+            buttonContainer.appendChild(commentButton);
+
+            const deleteQuestionButton = document.createElement('button');
+            deleteQuestionButton.textContent = '删除问题';
+            deleteQuestionButton.addEventListener('click', function () {
+                messageElement.remove();
+                // 更新 localStorage
+                const messages = getMessagesFromDOM();
+                localStorage.setItem('messages', JSON.stringify(messages));
+            });
+            buttonContainer.appendChild(deleteQuestionButton);
+
+            questionAndButton.appendChild(buttonContainer);
+            messageElement.appendChild(questionAndButton);
+
+            const replyForm = document.createElement('form');
+            replyForm.classList.add('reply-form');
+            const replyTextarea = document.createElement('textarea');
+            replyTextarea.classList.add('reply-textarea');
+            replyTextarea.placeholder = '输入回复内容';
+            replyForm.appendChild(replyTextarea);
+
+            const replySubmitButton = document.createElement('button');
+            replySubmitButton.type = 'submit';
+            replySubmitButton.textContent = '提交回复';
+            replyForm.appendChild(replySubmitButton);
+
+            replyForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const reply = replyTextarea.value;
+                if (reply) {
+                    const replyElement = createReplyElement(reply);
+                    messageElement.appendChild(replyElement);
+                    replyTextarea.value = '';
+                    replyForm.style.display = 'none';
+
+                    // 更新 localStorage
+                    const messages = getMessagesFromDOM();
+                    localStorage.setItem('messages', JSON.stringify(messages));
+                }
+            });
+
+            messageElement.appendChild(replyForm);
+
+            // 添加已有的回复
+            replies.forEach((reply) => {
+                const replyElement = createReplyElement(reply);
+                messageElement.appendChild(replyElement);
+            });
+
+            return messageElement;
+        }
+
+        function createReplyElement(reply) {
+            const replyElement = document.createElement('div');
+            replyElement.classList.add('reply');
+            replyElement.textContent = reply;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('delete-reply');
+            deleteButton.textContent = '删除';
+            deleteButton.addEventListener('click', function () {
+                replyElement.remove();
+                // 更新 localStorage
+                const messages = getMessagesFromDOM();
+                localStorage.setItem('messages', JSON.stringify(messages));
+            });
+            replyElement.appendChild(deleteButton);
+
+            return replyElement;
+        }
+
+        function getMessagesFromDOM() {
+            const messages = [];
+            const messageElements = messageList.querySelectorAll('.message');
+            messageElements.forEach((messageElement) => {
+                const question = messageElement.querySelector('.question-text').textContent.trim();
+                const replyElements = messageElement.querySelectorAll('.reply');
+                const replies = [];
+                replyElements.forEach((replyElement) => {
+                    const replyText = replyElement.textContent.replace('删除', '').trim();
+                    if (replyText) {
+                        replies.push(replyText);
+                    }
+                });
+                messages.push({ question, replies });
+            });
+            return messages;
+        }
+    </script>
+</body>
+
+</html>    
