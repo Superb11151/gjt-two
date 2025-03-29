@@ -127,9 +127,10 @@
         const messageForm = document.getElementById('messageForm');
         const messageInput = document.getElementById('messageInput');
         const messageList = document.getElementById('messageList');
+        const namespace = 'module1_';
 
         // 从 localStorage 加载数据
-        const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
+        const storedMessages = JSON.parse(localStorage.getItem(namespace + 'messages')) || [];
         storedMessages.forEach((messageData) => {
             const messageElement = createMessageElement(messageData.question, messageData.replies);
             messageList.appendChild(messageElement);
@@ -145,7 +146,7 @@
 
                 // 更新 localStorage
                 const messages = getMessagesFromDOM();
-                localStorage.setItem('messages', JSON.stringify(messages));
+                localStorage.setItem(namespace + 'messages', JSON.stringify(messages));
             }
         });
 
@@ -178,7 +179,7 @@
                 messageElement.remove();
                 // 更新 localStorage
                 const messages = getMessagesFromDOM();
-                localStorage.setItem('messages', JSON.stringify(messages));
+                localStorage.setItem(namespace + 'messages', JSON.stringify(messages));
             });
             buttonContainer.appendChild(deleteQuestionButton);
 
@@ -208,7 +209,7 @@
 
                     // 更新 localStorage
                     const messages = getMessagesFromDOM();
-                    localStorage.setItem('messages', JSON.stringify(messages));
+                    localStorage.setItem(namespace + 'messages', JSON.stringify(messages));
                 }
             });
 
@@ -235,7 +236,7 @@
                 replyElement.remove();
                 // 更新 localStorage
                 const messages = getMessagesFromDOM();
-                localStorage.setItem('messages', JSON.stringify(messages));
+                localStorage.setItem(namespace + 'messages', JSON.stringify(messages));
             });
             replyElement.appendChild(deleteButton);
 
